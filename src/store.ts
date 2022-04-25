@@ -41,7 +41,7 @@ async function Worker(
       try {
         console.log("[Worker] Registering ", pair);
         await registerFunc(pair);
-        console.log("[Worker] Registered! Calling addedNew handler");
+        console.log("[Worker] Registered Calling addedNew handler", pair);
         addedNew(pair);
       } catch (er) {
         console.warn("[Worker] Failed to register pair", pair);
@@ -96,7 +96,7 @@ export class Store {
   }
 
   async registerHandler(pair: IPair) {
-    console.log(">>>Register pair", pair);
+    console.log("Geenlock registering pair", pair);
     try {
       await this.greenlock.add({
         subject: pair.hostname,
@@ -122,6 +122,14 @@ export class Store {
     let i = this.pairs.findIndex((h) => h.hostname === hostname);
     if (i > 0) {
       this.pairs.splice(i, 1);
+
+      this.greenlock
+        .remove({
+          subject: hostname,
+        })
+        .then(function (siteConfig: any) {
+          console.log("[STORE] Removed", hostname);
+        });
     }
   }
 }

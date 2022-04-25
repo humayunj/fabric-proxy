@@ -40,12 +40,13 @@ function httpsWorker(glx: any) {
     return;
   });
 
-  proxy.on("proxyReq", (req: any, res: any) => {
-    console.log("HTTP Proxy-> Request ", req.headers?.host,req.headers?.hostname);
-  });
-
   glx.serveApp(function (req: any, res: any) {
+    const hostname = req.getHeader("hostname");
+    console.log(hostname);
+    const template =store.get(hostname);
+    console.log("Template is ",template);
     
+    proxy.web(req, res, { target: "" });
     res.end("Hello, World!");
   });
 
