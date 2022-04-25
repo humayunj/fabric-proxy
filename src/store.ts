@@ -102,6 +102,12 @@ export class Store {
         subject: pair.hostname,
         altnames: [pair.hostname],
       });
+      const pems = await this.greenlock.get({ servername: pair.hostname });
+
+      if (pems && pems.privkey && pems.cert && pems.chain) {
+        console.info("[STORE] Success");
+      }
+      //console.log(pems);
     } catch (er) {
       console.warn("[STORE] Greenlock registration failed");
       console.warn(er);
