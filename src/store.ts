@@ -100,7 +100,7 @@ export class Store {
     try {
       await this.greenlock.add({
         subject: pair.hostname,
-        altnames: [hostname],
+        altnames: [pair.hostname],
       });
     } catch (er) {
       console.warn("[STORE] Greenlock registration failed");
