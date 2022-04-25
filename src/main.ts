@@ -43,11 +43,15 @@ function httpsWorker(glx: any) {
   glx.serveApp(function (req: any, res: any) {
     const hostname = req.headers.host;
     console.log(hostname);
-    const template =store.get(hostname);
-    console.log("Template is ",template);
-    
-    proxy.web(req, res, { target: "" });
-    res.end("Hello, World!");
+    const template = store.get(hostname);
+    console.log("Template is ", template);
+    if (!template) {
+      res.status(404).end("Not Found!");
+      return;
+    }
+    req.headers["x-custom-domain"] = hostname;
+
+    proxy.web(req, res, { target: `https://${template}.relcanonical.com` });
   });
 
   console.log("Running RPC");
