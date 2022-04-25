@@ -57,7 +57,7 @@ function httpsWorker(glx: any) {
     }
 
     proxyReq.setHeader("x-custom-domain", hostname);
-    proxyReq.setHeader("hostname", `${template}.relcanonical.com`);
+    proxyReq.setHeader("host", `${template}.relcanonical.com`);
   });
 
   glx.serveApp(function (req: any, res: any) {
