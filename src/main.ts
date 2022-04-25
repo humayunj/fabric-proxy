@@ -52,7 +52,7 @@ function httpsWorker(glx: any) {
 
     req.headers["x-custom-domain"] = hostname;
     req.headers["host"] = `http://${template}.relcanonical.com`;
-    proxy.web(req, res, { target: "http://10.116.0.2:3000" });
+    proxy.web(req, res, { target: "http://relcanonical.com:3000" });
   });
 
   console.log("Running RPC");
