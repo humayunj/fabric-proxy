@@ -92,6 +92,7 @@ export class Store {
         this.addedNewHandler(pair);
       }
     } catch (er) {
+      console.log("Failed to check for ", pair);
       console.warn(er);
     }
   }
@@ -105,8 +106,8 @@ export class Store {
       });
       const pems = await this.greenlock
         .get({ servername: pair.hostname })
-        .then((pems:any) => {})
-        .catch((er:any) => console.log("ERRR", er));
+        .then((pems: any) => {})
+        .catch((er: any) => console.log("ERRR", er));
 
       if (pems && pems.privkey && pems.cert && pems.chain) {
         console.info("[STORE] Success");
