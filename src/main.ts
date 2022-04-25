@@ -12,6 +12,14 @@ const greenlock = Greenlock.create({
   // whether or not to run at cloudscale
   cluster: false,
   maintainerEmail: "asvdas@gmail.com",
+  notify: function (event: any, details: any) {
+    console.log("EV");
+    console.log(event, details);
+    if ("error" === event) {
+      // `details` is an error object in this case
+      console.error(details);
+    }
+  },
 });
 greenlock.manager.defaults({
   agreeToTerms: true,

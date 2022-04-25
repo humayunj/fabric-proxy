@@ -101,15 +101,12 @@ export class Store {
   async registerHandler(pair: IPair) {
     console.log("[STORE] Geenlock registering pair", pair);
     try {
-      await this.greenlock
-        .add({
-          subject: pair.hostname,
-          altnames: [pair.hostname],
-        })
-        .catch((er: any) => console.warn(">>>FAIL"));
-      const pems = await this.greenlock
-        .get({ servername: pair.hostname })
-        .catch((er: any) => console.log(">>>>>FFF"));
+      await this.greenlock.add({
+        subject: pair.hostname,
+        altnames: [pair.hostname],
+      });
+
+      const pems = await this.greenlock.get({ servername: pair.hostname });
 
       if (pems && pems.privkey && pems.cert && pems.chain) {
         console.info("[STORE] Pems exist");
