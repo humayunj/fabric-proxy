@@ -41,7 +41,7 @@ function httpsWorker(glx: any) {
   });
 
   glx.serveApp(function (req: any, res: any) {
-    const hostname = req.headers.hostname;
+    const hostname = req.headers.host;
     console.log(hostname);
     const template =store.get(hostname);
     console.log("Template is ",template);
