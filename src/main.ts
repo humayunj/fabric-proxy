@@ -16,16 +16,16 @@ greenlock.manager.defaults({
   subscriberEmail: "asvdas@example.com",
 });
 
-// var altnames = ["example.com", "www.example.com"];
+var altnames = ["fabric.kenefit.com"];
 
-// greenlock
-//   .add({
-//     subject: altnames[0],
-//     altnames: altnames,
-//   })
-//   .then(function () {
-//     // saved config to db (or file system)
-//   });
+greenlock
+  .add({
+    subject: altnames[0],
+    altnames: altnames,
+  })
+  .then(function () {
+    // saved config to db (or file system)
+  });
 
 require("greenlock-express")
   .init({ greenlock })
