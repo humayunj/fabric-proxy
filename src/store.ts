@@ -29,7 +29,7 @@ async function Worker(
   registerFunc: (pair: IPair) => Promise<boolean>,
   addedNew: (pair: IPair) => void
 ) {
-  const gap = 5000; //1000 * 60 * 20; // 20 minutes gap
+  const gap = 1000 * 60 * 25; // 25 minutes gap
   while (true) {
     if (queue.length > 0) {
       const pair = queue.shift();
@@ -40,9 +40,10 @@ async function Worker(
       }
       try {
         console.log("[Worker] Registering ", pair);
-        await registerFunc(pair);
-        console.log("[Worker] Registered Calling addedNew handler", pair);
-        addedNew(pair);
+        if (await registerFunc(pair)) {
+          console.log("[Worker] Registered, Calling addedNew handler", pair);
+          addedNew(pair);
+        } else console.log("[Worker] Registration failed", pair);
       } catch (er) {
         console.warn("[Worker] Failed to register pair", pair);
         console.warn(er);
@@ -106,7 +107,7 @@ export class Store {
 
       if (pems && pems.privkey && pems.cert && pems.chain) {
         console.info("[STORE] Success");
-      }
+      } else console.log("[STORE] Failed ", pair);
       //console.log(pems);
     } catch (er) {
       console.warn("[STORE] Greenlock registration failed");

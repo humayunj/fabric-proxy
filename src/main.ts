@@ -5,7 +5,7 @@ import { Store } from "./store";
 
 const greenlock = Greenlock.create({
   packageRoot: __dirname,
-  packageAgent: "pkg" + "/" + "1.0",
+  packageAgent: "fabric-proxy" + "/" + "1.0.0",
   // contact for security and critical bug notices
   configDir: "../greenlock.d",
   staging: true,
