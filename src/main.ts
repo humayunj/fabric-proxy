@@ -13,7 +13,7 @@ const greenlock = Greenlock.create({
 });
 greenlock.manager.defaults({
   agreeToTerms: true,
-  subscriberEmail: "asvdas@example.com",
+  subscriberEmail: "asvdas@gmail.com",
 });
 
 var altnames = ["fabric.kenefit.com"];
