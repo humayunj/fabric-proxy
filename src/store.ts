@@ -97,18 +97,22 @@ export class Store {
   }
 
   async registerHandler(pair: IPair) {
-    console.log("Geenlock registering pair", pair);
+    console.log("[STORE] Geenlock registering pair", pair);
     try {
       await this.greenlock.add({
         subject: pair.hostname,
         altnames: [pair.hostname],
       });
-      const pems = await this.greenlock.get({ servername: pair.hostname });
+      const pems = await this.greenlock
+        .get({ servername: pair.hostname })
+        .then((pems:any) => {})
+        .catch((er:any) => console.log("ERRR", er));
 
       if (pems && pems.privkey && pems.cert && pems.chain) {
         console.info("[STORE] Success");
       } else console.log("[STORE] Failed ", pair);
       //console.log(pems);
+      return true;
     } catch (er) {
       console.warn("[STORE] Greenlock registration failed");
       console.warn(er);
