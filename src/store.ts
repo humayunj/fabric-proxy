@@ -34,6 +34,7 @@ async function Worker(
     if (queue.length > 0) {
       const pair = queue.shift();
       if (!pair) continue;
+      console.log("[WORKER] Processing Pair", pair);
       if (validatePair(pair) === false) {
         console.warn("[Worker] Invalid Pair ", pair);
         continue;
@@ -92,7 +93,7 @@ export class Store {
         this.addedNewHandler(pair);
       }
     } catch (er) {
-      console.log("Failed to check for ", pair);
+      console.log("[STORE] Failed to check for ", pair);
       console.warn(er);
     }
   }
