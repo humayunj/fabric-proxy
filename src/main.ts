@@ -9,11 +9,11 @@ const greenlock = Greenlock.create({
   staging: true,
   // whether or not to run at cloudscale
   cluster: false,
-  maintainerEmail: "t@gmail.com",
+  maintainerEmail: "asvdas@gmail.com",
 });
 greenlock.manager.defaults({
   agreeToTerms: true,
-  subscriberEmail: "test@example.com",
+  subscriberEmail: "asvdas@example.com",
 });
 
 // var altnames = ["example.com", "www.example.com"];
@@ -35,7 +35,6 @@ require("greenlock-express")
   .serve(httpsWorker);
 
 function httpsWorker(glx: any) {
-
   var httpServer = glx.httpServer(function (req: any, res: any) {
     res.statusCode = 301;
     res.setHeader("Location", "https://" + req.headers.host + req.path);
