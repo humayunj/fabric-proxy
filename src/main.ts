@@ -1,5 +1,7 @@
 const Greenlock = require("greenlock");
 import HttpProxy from "http-proxy";
+import { RPC } from "./RPC";
+import { Store } from "./store";
 
 const greenlock = Greenlock.create({
   packageRoot: __dirname,
@@ -16,17 +18,6 @@ greenlock.manager.defaults({
   subscriberEmail: "asvdas@gmail.com",
 });
 
-var altnames = ["fabric.kenefit.com"];
-
-greenlock
-  .add({
-    subject: altnames[0],
-    altnames: altnames,
-  })
-  .then(function () {
-    // saved config to db (or file system)
-  });
-
 require("greenlock-express")
   .init({ greenlock })
   // Serves on 80 and 443
@@ -35,15 +26,9 @@ require("greenlock-express")
   .serve(httpsWorker);
 
 function httpsWorker(glx: any) {
-  var httpServer = glx.httpServer(function (req: any, res: any) {
-    res.statusCode = 301;
-    res.setHeader("Location", "https://" + req.headers.host + req.path);
-    res.end("Insecure connections are not allowed. Redirecting...");
-  });
-
-  httpServer.listen(80, "0.0.0.0", function () {
-    console.info("Listening on ", httpServer.address());
-  });
+  handlerHTTP(glx);
+  console.log("Creating Store");
+  const store = new Store(greenlock);
 
   const proxy = HttpProxy.createProxyServer({ xfwd: true });
 
@@ -55,7 +40,27 @@ function httpsWorker(glx: any) {
     return;
   });
 
+  proxy.on("proxyReq", (req: any, res: any) => {
+    console.log("HTTP Proxy-> Request ", req.headers?.host,req.headers?.hostname);
+  });
+
   glx.serveApp(function (req: any, res: any) {
+    
     res.end("Hello, World!");
+  });
+
+  console.log("Running RPC");
+  RPC(store);
+}
+
+function handlerHTTP(glx: any) {
+  var httpServer = glx.httpServer(function (req: any, res: any) {
+    res.statusCode = 301;
+    res.setHeader("Location", "https://" + req.headers.host + req.path);
+    res.end("Insecure connections are not allowed. Redirecting...");
+  });
+
+  httpServer.listen(80, "0.0.0.0", function () {
+    console.info("Listening on ", httpServer.address());
   });
 }
