@@ -49,9 +49,10 @@ function httpsWorker(glx: any) {
       res.status(404).end("Not Found!");
       return;
     }
-    req.headers["x-custom-domain"] = hostname;
 
-    proxy.web(req, res, { target: `https://${template}.relcanonical.com` });
+    req.headers["x-custom-domain"] = hostname;
+    req.headers["host"] = `http://${template}.relcanonical.com`;
+    proxy.web(req, res, { target: "http://10.116.0.2:3000" });
   });
 
   console.log("Running RPC");
