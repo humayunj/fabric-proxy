@@ -40,19 +40,28 @@ function httpsWorker(glx: any) {
     return;
   });
 
-  glx.serveApp(function (req: any, res: any) {
+  proxy.on("proxyReq", (proxyReq, req, res, options) => {
     const hostname = req.headers.host;
+    if (!hostname) {
+      res.statusCode = 404;
+      res.end("Invalid domain");
+      return;
+    }
     console.log(hostname);
     const template = store.get(hostname);
-    console.log("Template is ", template);
+    console.log("Template is", template);
     if (!template) {
-      res.status(404).end("Not Found!");
+      res.statusCode = 404;
+      res.end("Not Found!");
       return;
     }
 
-    req.headers["x-custom-domain"] = hostname;
-    req.headers["host"] = `http://${template}.relcanonical.com`;
-    proxy.web(req, res, { target: "http://relcanonical.com:3000" });
+    proxyReq.setHeader("x-custom-domain", hostname);
+    proxyReq.setHeader("hostname", `http://${template}.relcanonical.com`);
+  });
+
+  glx.serveApp(function (req: any, res: any) {
+    proxy.web(req, res, { target: "http://206.189.201.77:3000" });
   });
 
   console.log("Running RPC");
