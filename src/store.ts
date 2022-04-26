@@ -22,7 +22,7 @@ async function Worker(
   queue: IPair[],
   registerFunc: (pair: IPair) => Promise<boolean>
 ) {
-  const gap = 5000; // 1000 * 60 * 25; // 25 minutes gap
+  const gap = 1000 * 60 * 25; // 25 minutes gap
   while (true) {
     if (queue.length > 0) {
       const pair = queue.shift();
