@@ -5,30 +5,7 @@ interface IPair {
   template: string;
 }
 
-const PAIRS: IPair[] = [
-  { hostname: "seo.relcanonical.com", template: "seo" },
-  { hostname: "marketing.relcanonical.co.uk", template: "marketing" },
-  { hostname: "tld.relcanonical.co.uk", template: "tld" },
-  { hostname: "udemy.candelasacademy.com", template: "udemy" },
-  {
-    hostname: "udemy-ingilizce.candelasacademy.com",
-    template: "udemy-ingilizce",
-  },
-  { hostname: "cancer.gaziuniversityhospital.com", template: "cancer" },
-  { hostname: "ent.gaziuniversityhospital.com", template: "ent" },
-  { hostname: "heart.gaziuniversityhospital.com", template: "heart" },
-  {
-    hostname: "radiotherapy.gaziuniversityhospital.com",
-    template: "radiotherapy",
-  },
-  {
-    hostname: "tuberculosis.gaziuniversityhospital.com",
-    template: "tuberculosis",
-  },
-  { hostname: "tumor.gaziuniversityhospital.com", template: "tumor" },
-  { hostname: "surgeons.gaziuniversityhospital.com", template: "surgeons" },
-  { hostname: "surgeon.medicamap.com", template: "surgeon" },
-];
+const PAIRS: IPair[] = [];
 
 async function sleep(ms: number) {
   return new Promise<void>((res, rej) => {
@@ -80,7 +57,30 @@ export class Store {
   inProgress: IPair[];
   greenlock: any;
   constructor(greenlock: any) {
-    this.pairs = [];
+    this.pairs = [
+      { hostname: "seo.relcanonical.com", template: "seo" },
+      { hostname: "marketing.relcanonical.co.uk", template: "marketing" },
+      { hostname: "tld.relcanonical.co.uk", template: "tld" },
+      { hostname: "udemy.candelasacademy.com", template: "udemy" },
+      {
+        hostname: "udemy-ingilizce.candelasacademy.com",
+        template: "udemy-ingilizce",
+      },
+      { hostname: "cancer.gaziuniversityhospital.com", template: "cancer" },
+      { hostname: "ent.gaziuniversityhospital.com", template: "ent" },
+      { hostname: "heart.gaziuniversityhospital.com", template: "heart" },
+      {
+        hostname: "radiotherapy.gaziuniversityhospital.com",
+        template: "radiotherapy",
+      },
+      {
+        hostname: "tuberculosis.gaziuniversityhospital.com",
+        template: "tuberculosis",
+      },
+      { hostname: "tumor.gaziuniversityhospital.com", template: "tumor" },
+      { hostname: "surgeons.gaziuniversityhospital.com", template: "surgeons" },
+      { hostname: "surgeon.medicamap.com", template: "surgeon" },
+    ];
     this.queue = [];
     this.inProgress = [];
     this.greenlock = greenlock;
