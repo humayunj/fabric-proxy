@@ -55,7 +55,7 @@ export function RPC(store: Store) {
     .patch(updateHandler)
     .delete(deleteHandler);
 
-  const PORT = 5050;
+  const PORT = 6000;
   rpc.listen(PORT, () => {
     console.log("[RPC] Listening on", PORT);
   });
