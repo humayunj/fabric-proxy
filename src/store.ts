@@ -1,17 +1,11 @@
 import axios from "axios";
-import { hostname } from "os";
-const ROOT_SERVER = "http://";
+const ROOT_SERVER = "http://10.116.0.2:3000";
 interface IPair {
   hostname: string;
   template: string;
 }
 
 const PAIRS: IPair[] = [];
-
-function boot() {
-  const domains = axios.get("/domains"); // get all domains
-  // [domain, template]
-}
 
 async function sleep(ms: number) {
   return new Promise<void>((res, rej) => {
@@ -28,7 +22,7 @@ async function Worker(
   queue: IPair[],
   registerFunc: (pair: IPair) => Promise<boolean>
 ) {
-  const gap = 5000;// 1000 * 60 * 25; // 25 minutes gap
+  const gap = 5000; // 1000 * 60 * 25; // 25 minutes gap
   while (true) {
     if (queue.length > 0) {
       const pair = queue.shift();
@@ -71,11 +65,61 @@ export class Store {
     Worker(this.queue, this.registerHandler.bind(this)).catch((er) =>
       console.warn("[STORE] Worker Async Exception:", er)
     );
-    // axios.get()
+    try {
+      console.log("[STORE] Booting");
+      this.boot();
+    } catch (er) {
+      console.error("[STORE]", er);
+    }
+  }
+
+  async boot() {
+    try {
+      console.log("[STORE] Botting");
+      const { data } = await axios.get(ROOT_SERVER + "/api/domains/list"); // get all domains
+      if (data.ok === true) {
+        const domains = data.domains;
+        console.log("[STORE] Domains: ", domains);
+        for (let d of domains) {
+          try {
+            console.log("[STORE] BOOT Adding ", d);
+            // this.addNew({ hostname: d.domain, template: d.template });
+          } catch (er) {
+            console.warn("[STORE] [FAIL] Boot Adding fail for", d);
+          }
+        }
+      } else console.warn("[STORE] Boot RCV response is not ok");
+    } catch (er) {
+      console.error("[STORE] Boot failed", er);
+    }
+
+    // [domain, template]
   }
 
   get(hostname: string): string | undefined {
     return this.pairs.find((r) => r.hostname === hostname)?.template;
+  }
+  update(hostname: string, newTemplate: string): void {
+    const pair = this.pairs.find((r) => r.hostname === hostname);
+    if (
+      pair &&
+      validatePair({ hostname: pair.hostname, template: newTemplate })
+    ) {
+      console.log(
+        "[STORE] [UPDATE] ",
+        pair.hostname,
+        " Template ",
+        pair.template,
+        "to",
+        newTemplate
+      );
+    } else
+      console.log(
+        "[STORE] [UPDATE] Failed to update ",
+        hostname,
+        "template to",
+        newTemplate
+      );
   }
   async addNew(pair: IPair) {
     if (this.pairs.some((f) => f.hostname == pair.hostname)) {

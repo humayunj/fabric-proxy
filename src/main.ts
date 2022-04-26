@@ -15,6 +15,12 @@ const greenlock = Greenlock.create({
   notify: function (event: any, details: any) {
     console.log("[Ev]");
 
+    if ("error" === event) {
+      // `details` is an error object in this case
+      // console.error(details);
+      console.log("[Ev] is Error");
+    }
+    console.log(event, details);
     if (event === "cert_issue") {
       console.log("[Main] [Event] Cert Issued to", details.subject);
       if (!store) return;
@@ -26,13 +32,6 @@ const greenlock = Greenlock.create({
       const pair = store.inProgress.splice(pairInd, 1);
       if (pair && pair.length > 0) store.addedNewHandler(pair[0]);
     }
-
-    if ("error" === event) {
-      // `details` is an error object in this case
-      // console.error(details);
-      console.log("[Ev] is Error");
-    }
-    console.log(event, details);
   },
 });
 store = new Store(greenlock);

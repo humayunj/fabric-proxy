@@ -1,4 +1,5 @@
 import express from "express";
+import { hostname } from "os";
 import { Store, validatePair } from "./store";
 
 export function RPC(store: Store) {
@@ -8,7 +9,7 @@ export function RPC(store: Store) {
   rpc.use(express.urlencoded({ extended: true }));
 
   const registerHandler: express.RequestHandler = (req, res) => {
-    const {domain, template} = req.body;
+    const { domain, template } = req.body;
     console.log("[RPC] Register", domain, template);
 
     if (store.get(domain)) {
@@ -26,14 +27,30 @@ export function RPC(store: Store) {
   };
   const updateHandler: express.RequestHandler = (req, res) => {
     console.log("[RPC] Update", req.body.domain, req.body.template);
-    res.json({ ok: true });
+    const { domain, template } = req.body;
+    try {
+      store.update(domain, template);
+      res.json({ ok: true });
+    } catch (er) {
+      res.json({ ok: false });
+    }
   };
   const deleteHandler: express.RequestHandler = (req, res) => {
     console.log("[RPC] Delete", req.query.domain);
-    res.json({ ok: true });
+    const hostname = req.query.domain;
+    if (!hostname) {
+      return res.json({ ok: false });
+    }
+
+    try {
+      store.delete(hostname as any);
+      res.json({ ok: true });
+    } catch (er) {
+      res.json({ ok: false });
+    }
   };
   rpc
-    .route("/domain")
+    .route("/domains")
     .post(registerHandler)
     .patch(updateHandler)
     .delete(deleteHandler);
