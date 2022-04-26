@@ -114,7 +114,12 @@ function handlerHTTP(glx: any, proxy: HttpProxy) {
 
 function redirect(req: any, res: any) {
   res.statusCode = 301;
-  const pathname = new URL(req.url).pathname;
+  let pathname = "/";
+  try {
+    pathname = new URL(req.url, "https://" + req.headers.host).pathname;
+  } catch (er) {
+    pathname = "/";
+  }
   res.setHeader("Location", "https://" + req.headers.host + pathname);
   res.end(
     "Redirecting to secure connection",
