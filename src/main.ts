@@ -2,7 +2,7 @@ const Greenlock = require("greenlock");
 import HttpProxy from "http-proxy";
 import { RPC } from "./RPC";
 import { Store } from "./store";
-
+let store: Store | null = null;
 const greenlock = Greenlock.create({
   packageRoot: __dirname,
   packageAgent: "fabric-proxy" + "/" + "1.0.0",
@@ -13,14 +13,29 @@ const greenlock = Greenlock.create({
   cluster: false,
   maintainerEmail: "asvdas@gmail.com",
   notify: function (event: any, details: any) {
-    console.log("EV");
-    console.log(event, details);
+    console.log("[Ev]");
+
+    if (event === "cert_issue") {
+      console.log("[Main] [Event] Cert Issued to", details.subject);
+      if (!store) return;
+      const pairInd = store.inProgress.findIndex(
+        (p) => p.hostname === details.subject
+      );
+
+      if (pairInd < 0) return;
+      const pair = store.inProgress.splice(pairInd, 1);
+      if (pair && pair.length > 0) store.addedNewHandler(pair[0]);
+    }
+
     if ("error" === event) {
       // `details` is an error object in this case
-      console.error(details);
+      // console.error(details);
+      console.log("[Ev] is Error");
     }
+    console.log(event, details);
   },
 });
+store = new Store(greenlock);
 greenlock.manager.defaults({
   agreeToTerms: true,
   subscriberEmail: "asvdas@gmail.com",
@@ -34,9 +49,12 @@ require("greenlock-express")
   .serve(httpsWorker);
 
 function httpsWorker(glx: any) {
+  if (!store) {
+    console.error("Store is not initialized");
+    return;
+  }
   handlerHTTP(glx);
   console.log("Creating Store");
-  const store = new Store(greenlock);
 
   const proxy = HttpProxy.createProxyServer({ xfwd: true });
 
@@ -56,7 +74,7 @@ function httpsWorker(glx: any) {
       return;
     }
     console.log(hostname);
-    const template = store.get(hostname);
+    const template = store?.get(hostname);
     console.log("Template is", template);
     if (!template) {
       res.statusCode = 404;
@@ -73,7 +91,7 @@ function httpsWorker(glx: any) {
   });
 
   console.log("Running RPC");
-  RPC(store);
+  if (store) RPC(store);
 }
 
 function handlerHTTP(glx: any) {

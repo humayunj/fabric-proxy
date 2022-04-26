@@ -26,24 +26,24 @@ export function validatePair(pair: IPair) {
 
 async function Worker(
   queue: IPair[],
-  registerFunc: (pair: IPair) => Promise<boolean>,
-  addedNew: (pair: IPair) => void
+  registerFunc: (pair: IPair) => Promise<boolean>
 ) {
   const gap = 1000 * 60 * 25; // 25 minutes gap
   while (true) {
     if (queue.length > 0) {
       const pair = queue.shift();
       if (!pair) continue;
-      console.log("[WORKER] Processing Pair", pair);
+      console.log("[Worker] Processing Pair", pair);
       if (validatePair(pair) === false) {
         console.warn("[Worker] Invalid Pair ", pair);
         continue;
       }
       try {
         console.log("[Worker] Registering ", pair);
+
         if (await registerFunc(pair)) {
-          console.log("[Worker] Registered, Calling addedNew handler", pair);
-          addedNew(pair);
+          console.log("[Worker] Registration Process Finished", pair);
+          // addedNew(pair);
         } else console.log("[Worker] Registration failed", pair);
       } catch (er) {
         console.warn("[Worker] Failed to register pair", pair);
@@ -60,17 +60,17 @@ async function Worker(
 export class Store {
   pairs: IPair[];
   queue: IPair[];
+  inProgress: IPair[];
   greenlock: any;
   constructor(greenlock: any) {
     this.pairs = [];
     this.queue = [];
+    this.inProgress = [];
     this.greenlock = greenlock;
 
-    Worker(
-      this.queue,
-      this.registerHandler.bind(this),
-      this.addedNewHandler.bind(this)
-    ).catch((er) => console.warn(er));
+    Worker(this.queue, this.registerHandler.bind(this)).catch((er) =>
+      console.warn("[STORE] Worker Async Exception:", er)
+    );
     // axios.get()
   }
 
@@ -101,6 +101,7 @@ export class Store {
   async registerHandler(pair: IPair) {
     console.log("[STORE] Geenlock registering pair", pair);
     try {
+      this.inProgress.push(pair);
       await this.greenlock.add({
         subject: pair.hostname,
         altnames: [pair.hostname],
@@ -118,7 +119,6 @@ export class Store {
       console.warn(er);
       return false;
     }
-    return true;
   }
   addedNewHandler(pair: IPair) {
     this.pairs.push(pair);
