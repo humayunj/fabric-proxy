@@ -9,7 +9,7 @@ const greenlock = Greenlock.create({
   packageAgent: "fabric-proxy" + "/" + "1.0.0",
   // contact for security and critical bug notices
   configDir: "../greenlock.d",
-  staging: true,
+  staging: false,
   // whether or not to run at cloudscale
   cluster: false,
   maintainerEmail: "asvdas@gmail.com",
