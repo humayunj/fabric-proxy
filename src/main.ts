@@ -1,5 +1,6 @@
 const Greenlock = require("greenlock");
 import HttpProxy from "http-proxy";
+import { URL } from "url";
 import { RPC } from "./RPC";
 import { Store } from "./store";
 let store: Store | null = null;
@@ -52,10 +53,9 @@ function httpsWorker(glx: any) {
     console.error("Store is not initialized");
     return;
   }
-  handlerHTTP(glx);
-  console.log("Creating Store");
-
   const proxy = HttpProxy.createProxyServer({ xfwd: true });
+
+  handlerHTTP(glx, proxy);
 
   // catches error events during proxying
   proxy.on("error", function (err, req, res: any) {
@@ -93,14 +93,31 @@ function httpsWorker(glx: any) {
   if (store) RPC(store);
 }
 
-function handlerHTTP(glx: any) {
+function handlerHTTP(glx: any, proxy: HttpProxy) {
   var httpServer = glx.httpServer(function (req: any, res: any) {
-    res.statusCode = 301;
-    res.setHeader("Location", "https://" + req.headers.host + req.path);
-    res.end("Insecure connections are not allowed. Redirecting...");
+    if (store) {
+      if (store.get(req.headers.host)) {
+        redirect(req, res);
+        return;
+      } else if (store.getHostnameInStore(req.headers.host)) {
+        proxy.web(req, res, { target: "http://206.189.201.77:3000" });
+        return;
+      }
+    }
+    res.end("NOT FOUND");
   });
 
   httpServer.listen(80, "0.0.0.0", function () {
     console.info("Listening on ", httpServer.address());
   });
+}
+
+function redirect(req: any, res: any) {
+  res.statusCode = 301;
+  const pathname = new URL(req.url).pathname;
+  res.setHeader("Location", "https://" + req.headers.host + pathname);
+  res.end(
+    "Redirecting to secure connection",
+    "https://" + req.headers.host + pathname
+  );
 }

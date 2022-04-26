@@ -121,6 +121,18 @@ export class Store {
         newTemplate
       );
   }
+
+  getHostnameInStore(hostname: string): IPair | null {
+    const inPairs = this.pairs.find((f) => f.hostname == hostname);
+    if (inPairs) return inPairs;
+
+    const inQueue = this.queue.find((f) => f.hostname == hostname);
+    if (inQueue) return inQueue;
+    const inProgress = this.inProgress.find((f) => f.hostname == hostname);
+    if (inProgress) return inProgress;
+
+    return null;
+  }
   async addNew(pair: IPair) {
     if (this.pairs.some((f) => f.hostname == pair.hostname)) {
       console.warn("[STORE] ERROR: Adding already paired hostname", pair);
