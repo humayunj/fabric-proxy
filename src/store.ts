@@ -121,6 +121,7 @@ export class Store {
     }
   }
   addedNewHandler(pair: IPair) {
+    console.log("[STORE} Added to active pairs", pair);
     this.pairs.push(pair);
   }
   delete(hostname: string) {
