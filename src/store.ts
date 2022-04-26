@@ -28,7 +28,7 @@ async function Worker(
   queue: IPair[],
   registerFunc: (pair: IPair) => Promise<boolean>
 ) {
-  const gap = 1000 * 60 * 25; // 25 minutes gap
+  const gap = 5000;// 1000 * 60 * 25; // 25 minutes gap
   while (true) {
     if (queue.length > 0) {
       const pair = queue.shift();
@@ -79,17 +79,26 @@ export class Store {
   }
   async addNew(pair: IPair) {
     if (this.pairs.some((f) => f.hostname == pair.hostname)) {
-      console.warn("Adding already paired hostname", pair);
+      console.warn("[STORE] ERROR: Adding already paired hostname", pair);
+      return;
+    }
+
+    if (this.queue.some((f) => f.hostname == pair.hostname)) {
+      console.warn("[STORE] ERROR: Adding already QUEUED hostname", pair);
+      return;
+    }
+    if (this.inProgress.some((f) => f.hostname == pair.hostname)) {
+      console.warn("[STORE] ERROR: Adding in-progress hostname", pair);
       return;
     }
 
     try {
       const site = await this.greenlock.get({ servername: pair.hostname });
       if (!site) {
-        console.log("Certificate doesn't exists. Adding to queue");
+        console.log("[STORE] Certificate doesn't exists. Adding to queue");
         this.queue.push(pair);
       } else {
-        console.log("Certificate already exists, adding to pairs");
+        console.log("[STORE] Certificate already exists, adding to pairs");
         this.addedNewHandler(pair);
       }
     } catch (er) {
@@ -121,7 +130,7 @@ export class Store {
     }
   }
   addedNewHandler(pair: IPair) {
-    console.log("[STORE} Added to active pairs", pair);
+    console.log("[STORE] Added to active pairs", pair);
     this.pairs.push(pair);
   }
   delete(hostname: string) {
